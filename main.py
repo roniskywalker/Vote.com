@@ -1,3 +1,5 @@
+import psycopg2
+
 def create_tables(conn, cur):
     cur.execute("""
         CREATE TABLE IF NOT EXISTS candidates (
@@ -46,5 +48,12 @@ if __name__=="__main__":
         cur = conn.cursor()
 
         create_tables(conn, cur)
+
+        cur.execute("""
+        SELECT * FROM candidates
+        """)
+        candidates = cur.fetchall()
+        print(candidates)
+
     except Exception as e:
         print(e)
