@@ -1,6 +1,8 @@
 import random
 import psycopg2
 import requests
+import simplejson as json
+from confluent_kafka import SerializingProducer
 
 BASE_URL = 'https://randomuser.me/api/?nat=in'
 PARTIES = ["BJP", "INC", "AAP"]
@@ -112,7 +114,17 @@ def insert_voters(conn, cur, voter):
         )
     conn.commit()
 
+voters_topic = 'voters_topic'
+candidates_topic = 'candidates_topic'
+
+def delivery_report(err, msg):
+    if err is not None:
+        print(f'Message delivery failed: {err}')
+    else:
+        print(f'Message delivered to {msg.topic()} [{msg.partition()}]')
+
 if __name__=="__main__":
+    producer = SerializingProducer({'bootstrap.servers': 'localhost:9092', })
     try:
         conn = psycopg2.connect("host=localhost dbname=voting user=postgres password=postgres") #start connection to postgres
         cur = conn.cursor() #connect to postgres, create table, get queries, run, get result
@@ -137,6 +149,15 @@ if __name__=="__main__":
             # print(voter_data)
 
             insert_voters(conn, cur, voter)
+
+            producer.produce(
+            voters_topic,
+            key=voter["voter_id"],
+            value=json.dumps(voter),
+            on_delivery=delivery_report
+            )
+            # print('Produced voter {}, data: {}'.format(i, voter_data))
+            producer.flush()
 
     except Exception as e:
         print(e)
