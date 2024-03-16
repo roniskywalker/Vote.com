@@ -64,10 +64,18 @@ def generate_candidate_data(candidate_number, total_parties):
     else:
         return "Error fetching data"
 
+def insert_candidates(conn, cur, candidate):
+    cur.execute("""
+        INSERT INTO candidates (candidate_id, candidate_name, party_affiliation, biography, campaign_platform, photo_url)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+        candidate['candidate_id'], candidate['candidate_name'], candidate['party_affiliation'], candidate['biography'], candidate['campaign_platform'], candidate['photo_url']))
+    conn.commit()
+
 if __name__=="__main__":
     try:
-        conn = psycopg2.connect("host=localhost dbname=voting user=postgres password=13975")
-        cur = conn.cursor()
+        conn = psycopg2.connect("host=localhost dbname=voting user=postgres password=postgres") #start connection to postgres
+        cur = conn.cursor() #connect to postgres, create table, get queries, run, get result
 
         create_tables(conn, cur)
 
@@ -75,18 +83,14 @@ if __name__=="__main__":
             SELECT * FROM candidates
         """)
         candidates = cur.fetchall()
-        print(candidates)
+        # print(candidates)
 
         if len(candidates) == 0:
             for i in range(3):
                 candidate = generate_candidate_data(i, 3)
-                print(candidate)
-                cur.execute("""
-                            INSERT INTO candidates (candidate_id, candidate_name, party_affiliation, biography, campaign_platform, photo_url)
-                            VALUES (%s, %s, %s, %s, %s, %s)
-                        """, (
-                    candidate['candidate_id'], candidate['candidate_name'], candidate['party_affiliation'], candidate['biography'], candidate['campaign_platform'], candidate['photo_url']))
-                conn.commit()
+                # print(candidate)
+
+                insert_candidates(conn, cur, candidate)
 
     except Exception as e:
         print(e)

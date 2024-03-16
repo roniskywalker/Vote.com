@@ -55,7 +55,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 13975
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: voting
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
