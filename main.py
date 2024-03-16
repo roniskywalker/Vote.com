@@ -99,6 +99,19 @@ def generate_voter_data():
     else:
         return "Error fetching data"
 
+def insert_voters(conn, cur, voter):
+    cur.execute("""
+        INSERT INTO voters (voter_id, voter_name, date_of_birth, gender, nationality, registration_number, address_street, address_city, address_state, address_country, address_postcode, email, phone_number, cell_number, picture, registered_age)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s,%s)
+        """,
+        (voter["voter_id"], voter['voter_name'], voter['date_of_birth'], voter['gender'],
+        voter['nationality'], voter['registration_number'], voter['address']['street'],
+        voter['address']['city'], voter['address']['state'], voter['address']['country'],
+        voter['address']['postcode'], voter['email'], voter['phone_number'],
+        voter['cell_number'], voter['picture'], voter['registered_age'])
+        )
+    conn.commit()
+
 if __name__=="__main__":
     try:
         conn = psycopg2.connect("host=localhost dbname=voting user=postgres password=postgres") #start connection to postgres
@@ -123,7 +136,7 @@ if __name__=="__main__":
             voter = generate_voter_data()
             # print(voter_data)
 
-            # insert_voters(conn, cur, voter)
+            insert_voters(conn, cur, voter)
 
     except Exception as e:
         print(e)
