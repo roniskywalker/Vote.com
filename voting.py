@@ -1,4 +1,17 @@
 import psycopg2
+from confluent_kafka import Consumer, KafkaError, KafkaException, SerializingProducer
+
+conf = {
+    'bootstrap.servers': 'localhost:9092',
+}
+
+consumer = Consumer(conf | {
+    'group.id': 'voting-group',
+    'auto.offset.reset': 'earliest',
+    'enable.auto.commit': False
+})
+
+producer = SerializingProducer(conf)
 
 if __name__ == "__main__":
     conn = psycopg2.connect("host=localhost dbname=voting user=postgres password=postgres") #start connection to postgres
