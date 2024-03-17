@@ -1,5 +1,11 @@
+import random
+import time
 import psycopg2
 from confluent_kafka import Consumer, KafkaError, KafkaException, SerializingProducer
+import simplejson as json
+from datetime import datetime
+
+from main import delivery_report
 
 conf = {
     'bootstrap.servers': 'localhost:9092',
@@ -31,3 +37,26 @@ if __name__ == "__main__":
         raise Exception("No candidates found in database")
     else:
         print(candidates)
+
+    consumer.subscribe(['voters_topic'])
+    try:
+        while True:
+            msg = consumer.poll(timeout=1.0)
+            if msg is None:
+                continue
+            elif msg.error():
+                if msg.error().code() == KafkaError._PARTITION_EOF:
+                    continue
+                else:
+                    print(msg.error())
+                    break
+            else:
+                voter = json.loads(msg.value().decode('utf-8'))
+                chosen_candidate = random.choice(candidates)
+                vote = voter | chosen_candidate | {
+                    "voting_time": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+                    "vote": 1
+                }
+
+    except KafkaException as e:
+        print(e)
