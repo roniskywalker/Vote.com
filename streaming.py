@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType
 from pyspark.sql.functions import from_json, col
+from pyspark.sql.functions import sum as _sum
 
 if __name__ == "__main__":
     # Initialize SparkSession
@@ -56,4 +57,7 @@ if __name__ == "__main__":
     votes_df = votes_df.withColumn("voting_time", col("voting_time").cast(TimestampType())) \
         .withColumn('vote', col('vote').cast(IntegerType()))
     enriched_votes_df = votes_df.withWatermark("voting_time", "1 minute")
-    
+
+    votes_per_candidate = enriched_votes_df.groupBy("candidate_id", "candidate_name", "party_affiliation",
+                                                    "photo_url").agg(_sum("vote").alias("total_votes"))
+    turnout_by_location = enriched_votes_df.groupBy("address.state").count().alias("total_votes")
