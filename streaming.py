@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType
+from pyspark.sql.functions import from_json, col
 
 if __name__ == "__main__":
     # Initialize SparkSession
@@ -41,3 +42,13 @@ if __name__ == "__main__":
         StructField("registered_age", IntegerType(), True),
         StructField("vote", IntegerType(), True)
     ])
+
+    votes_df = spark.readStream \
+        .format("kafka") \
+        .option("kafka.bootstrap.servers", "localhost:9092") \
+        .option("subscribe", "votes_topic") \
+        .option("startingOffsets", "earliest") \
+        .load() \
+        .selectExpr("CAST(value AS STRING)") \
+        .select(from_json(col("value"), vote_schema).alias("data")) \
+        .select("data.*")
