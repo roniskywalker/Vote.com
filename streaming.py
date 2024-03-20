@@ -52,3 +52,8 @@ if __name__ == "__main__":
         .selectExpr("CAST(value AS STRING)") \
         .select(from_json(col("value"), vote_schema).alias("data")) \
         .select("data.*")
+    
+    votes_df = votes_df.withColumn("voting_time", col("voting_time").cast(TimestampType())) \
+        .withColumn('vote', col('vote').cast(IntegerType()))
+    enriched_votes_df = votes_df.withWatermark("voting_time", "1 minute")
+    
