@@ -79,3 +79,6 @@ if __name__ == "__main__":
         .option("checkpointLocation", "/Users/airscholar/Dev/Projects/Python/Voting/checkpoints/checkpoint2") \
         .outputMode("update") \
         .start()
+    
+    votes_per_candidate_to_kafka.awaitTermination()
+    turnout_by_location_to_kafka.awaitTermination()
