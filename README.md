@@ -2,7 +2,7 @@
 It is a real-time election voting system. The system is built using Python, Kafka, Spark Streaming, Postgres and Streamlit. The system is built using Docker Compose to easily spin up the required services in Docker containers.
 
 ## System Architecture
-![system_architecture.jpg](images%2Fsystem_architecture.jpg)
+![system_architecture](https://github.com/roniskywalker/Vote.com/assets/97012708/a8ef3bca-9db1-4729-8d55-8214c033d945)
 
 ### Run
 1. Clone this repository.
@@ -49,4 +49,4 @@ streamlit run streamlit-app.py
 ```
 
 ### Picture
-![dashboard_image.png](images%2Fdashboard_image.png)
+![dashboard_image](https://github.com/roniskywalker/Vote.com/assets/97012708/2739ce81-7688-4162-bebe-14b68b6d76b5)
